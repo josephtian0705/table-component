@@ -1,14 +1,13 @@
 import React, {useState, useEffect, forwardRef} from 'react';
-import {Container, Button, Grid, Checkbox} from '@material-ui/core';
+import {Container, Button} from '@material-ui/core';
 import axios from 'axios';
 import MaterialTable from 'material-table';
 
-import { ThemeProvider, createMuiTheme } from "@material-ui/core";
+import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import {
   MuiPickersUtilsProvider,
   DateTimePicker
 } from "@material-ui/pickers";
-
 
 import DateFnsUtils from "@date-io/date-fns";
 
@@ -28,6 +27,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+import { grey } from '@material-ui/core/colors';
 
 const TABLEICONS = {
   Add: forwardRef((props, ref:React.Ref<SVGSVGElement>) => <AddBox {...props} ref={ref} />),
@@ -49,19 +49,30 @@ const TABLEICONS = {
   ViewColumn: forwardRef((props, ref:React.Ref<SVGSVGElement>) => <ViewColumn {...props} ref={ref} />)
 };
 
+//color theme of date/time picker
+const colorTheme = createMuiTheme({
+  palette: {
+    primary: grey,
+  },
+});
+
 function TableComponent() {
 
+  //column props
   const [columns, setColumns] = useState<any>([
-    //disable editable to edit data
-    { title: 'ID', field: 'id', editable: 'never' },
-    { title: 'キャスト名', field: 'surname' },
-    { title: '区分', field: 'type', editable: 'never',
-      render: () => {
-        return(
-          <span>在籍</span>
-        );
+    { title: 'ID', field: 'uid', editable: 'never', hidden: true}, //ID from firebase
+    { field: 'id', editable: 'never'}, // Fake id
+    { title: '指名', field: 'name',
+      cellStyle: {
+        width: 30,
+        maxWidth: 20,
+      },
+      headerStyle: {
+        width: '50px'
       }
     },
+    { title: 'キャスト名', field: 'surname'},
+    { title: '区分', field: 'type'},
     { title: '预定時間', field: 'bookTime', 
       render: (row:any) => { 
         //set time format
@@ -80,26 +91,33 @@ function TableComponent() {
         let minutes = timeArray[1];
         let seconds = timeArray[2];
         
+        let finalBookTime = year + '/' + month + '/' + day + '\n' + 
+                            hours + ':' + minutes;
+        
+        row.bookTime = finalBookTime;
+
+        let result = hours + ':' + minutes; //set date or time format at here
+
         return(
-          <span>{year + '/' + month + '/' + day + ',' + '\n' +  
-          hours + ':' + minutes + ':' + seconds}</span>
+          <span>{result}</span>
         );
       },
         editComponent: (props:any) => {
           return(
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <DateTimePicker
-                variant="inline"
-                ampm={false}
-                required={true}
-                value={props.value || null}
-                onChange={props.onChange}
-                disablePast
-                format="yyyy/MM/dd HH:mm"
-              />
-            </MuiPickersUtilsProvider>
+            <ThemeProvider theme={colorTheme}>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DateTimePicker
+                  variant="inline"
+                  ampm={false}
+                  value={props.value || null}
+                  onChange={props.onChange}
+                  disablePast
+                  format="HH:mm"
+                />
+              </MuiPickersUtilsProvider>
+            </ThemeProvider>
           )
-        }
+        },
     },
     { title: '打刻時間', field: 'stampingTime',
     render: (row:any) => { 
@@ -118,26 +136,34 @@ function TableComponent() {
         let hours = timeArray[0];
         let minutes = timeArray[1];
         let seconds = timeArray[2];
+
+        let finalStampingTime = year + '/' + month + '/' + day + '\n' + 
+                            hours + ':' + minutes;
+        
+        row.bookTime = finalStampingTime;
+
+        let result = hours + ':' + minutes; //set date or time format at here
         
         return(
-          <span>{year + '/' + month + '/' + day + ',' + '\n' +  
-          hours + ':' + minutes + ':' + seconds}</span>
+          <span>{result}</span>
         );
   },
     editComponent: (props:any) => {
       const newDate = new Date();
       return(
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DateTimePicker
-            autoOk={true}
-            variant="inline"
-            ampm={false}
-            value={props.value || null}
-            onChange={props.onChange}
-            disablePast
-            format="yyyy/MM/dd HH:mm"
-          />
-        </MuiPickersUtilsProvider>
+        <ThemeProvider theme={colorTheme}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+              autoOk={true}
+              variant="inline"
+              ampm={false}
+              value={props.value || null}
+              onChange={props.onChange}
+              disablePast
+              format="HH:mm"
+            />
+          </MuiPickersUtilsProvider>
+        </ThemeProvider>
       )
     }
   },
@@ -158,24 +184,32 @@ function TableComponent() {
         let hours = timeArray[0];
         let minutes = timeArray[1];
         let seconds = timeArray[2];
+
+        let finalAttendanceTime = year + '/' + month + '/' + day + '\n' + 
+                            hours + ':' + minutes;
         
+        row.attendanceTime = finalAttendanceTime;
+
+        let result = hours + ':' + minutes; //set date or time format at here
+
         return(
-          <span>{year + '/' + month + '/' + day + ',' + '\n' +  
-          hours + ':' + minutes + ':' + seconds}</span>
+          <span>{result}</span>
         );
     },
       editComponent: (props:any) => {
         return(
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DateTimePicker
-              variant="inline"
-              ampm={false}
-              value={props.value || null}
-              onChange={props.onChange}
-              disablePast
-              format="yyyy/MM/dd HH:mm"
-            />
-          </MuiPickersUtilsProvider>
+          <ThemeProvider theme={colorTheme}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <DateTimePicker
+                variant="inline"
+                ampm={false}
+                value={props.value || null}
+                onChange={props.onChange}
+                disablePast
+                format="HH:mm"
+              />
+            </MuiPickersUtilsProvider>
+          </ThemeProvider>
         )
       }
     },
@@ -196,35 +230,37 @@ function TableComponent() {
         let hours = timeArray[0];
         let minutes = timeArray[1];
         let seconds = timeArray[2];
-      
-      return(
-        <span>{year + '/' + month + '/' + day + ',' + '\n' +  
-        hours + ':' + minutes + ':' + seconds}</span>
-      );
+
+        let finalLeaveTime = year + '/' + month + '/' + day + '\n' + 
+                            hours + ':' + minutes;
+        
+        row.leaveTime = finalLeaveTime;
+
+        let result = hours + ':' + minutes; //set date or time format at here
+
+        return(
+          <span>{result}</span>
+        );
     },
       editComponent: (props:any) => {
         return(
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DateTimePicker
-              autoOk
-              variant="inline"
-              ampm={false}
-              value={props.value || null}
-              onChange={props.onChange}
-              disablePast
-              format="yyyy/MM/dd HH:mm"
-            />
-          </MuiPickersUtilsProvider>
+          <ThemeProvider theme={colorTheme}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <DateTimePicker
+                autoOk
+                variant="inline"
+                ampm={false}
+                value={props.value || null}
+                onChange={props.onChange}
+                disablePast
+                format="HH:mm"
+              />
+            </MuiPickersUtilsProvider>
+          </ThemeProvider>
         )
       } 
     },
-    { title: '欠', field: 'X', editable: 'never',
-      render: (row:any) => {
-        return(
-          <span>X</span>
-        )
-      }
-    },
+    { title: '欠', field: 'x'},
     { title: '遅刻', field: 'lateTime',
     render: (row:any) => { 
       //set time format
@@ -242,36 +278,36 @@ function TableComponent() {
       let hours = timeArray[0];
       let minutes = timeArray[1];
       let seconds = timeArray[2];
-    
-    return(
-      <span>{year + '/' + month + '/' + day + ',' + '\n' +  
-      hours + ':' + minutes + ':' + seconds}</span>
-    );
+
+      let finalLateTime = year + '/' + month + '/' + day + '\n' + 
+                            hours + ':' + minutes;
+      row.lateTime = finalLateTime;
+
+      let result = hours + ':' + minutes; //set date or time format at here
+
+      return(
+        <span>{result}</span>
+      );
   },
     editComponent: (props:any) => {
       return(
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DateTimePicker
-            autoOk
-            variant="inline"
-            ampm={false}
-            value={props.value || null}
-            onChange={props.onChange}
-            disablePast
-            format="yyyy/MM/dd HH:mm"
-          />
-        </MuiPickersUtilsProvider>
+        <ThemeProvider theme={colorTheme}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+              autoOk
+              variant="inline"
+              ampm={false}
+              value={props.value || null}
+              onChange={props.onChange}
+              disablePast
+              format="HH:mm"
+            />
+          </MuiPickersUtilsProvider>
+        </ThemeProvider>
       )
     }
     },
-    { title: '状态', field: 'status', editable: 'never',
-      //custom render data
-      render: () => {
-        return(
-          <span>退</span>
-        )
-      }
-    },
+    { title: '状态', field: 'status'},
   ]);
 
   const [data, setData] = useState<any>([]);
@@ -285,13 +321,19 @@ function TableComponent() {
 
   //get data from database and display on the table
    useEffect(() => { 
-    api.get('/table.json')
+      getTableData();
+    }, []);
+
+    //retrieve data from database
+    const getTableData = () => {
+      api.get('/table.json')
       .then(res => {
         const getData = [];
         for(let key in res.data){
           getData.unshift({
             ...res.data[key],
-            id:key
+            uid: key, // get uid from firebase
+            id: Math.floor(Math.random() * 10000) // random create fake id
           })
         }  
         setData(getData);
@@ -299,18 +341,6 @@ function TableComponent() {
       .catch(error=>{
           console.log('Error');
       })
-    }, []);
-
-    const handleCheckboxChecked = (props:any) => {
-      console.log(props.id);
-    } 
-  
-    const handleButtonClick1 = () => {
-      alert('指名Clicked');
-    }
-
-    const handleButtonClick2 = () => {
-      alert('退勤Clicked');
     }
 
     //function to add row in database
@@ -318,6 +348,14 @@ function TableComponent() {
     //datetime depends on server location
     const handleRowAdd = (newData: any , resolve: any) => {
       let errorList = [];
+
+      if(newData.name === undefined){
+        errorList.push('Please enter name');
+      }
+
+      if(newData.type === undefined){
+        errorList.push('Please enter type');
+      }
 
       if(newData.surname === undefined){
         errorList.push('Please enter last name');
@@ -339,6 +377,10 @@ function TableComponent() {
         errorList.push('please enter leave time')
       }
 
+      if(newData.x === undefined){
+        errorList.push('Please enter type');
+      }
+
       if(newData.lateTime === undefined){
         errorList.push('please enter late time')
       }
@@ -349,6 +391,7 @@ function TableComponent() {
         .then(res => {
           let postData = [...res.data];
           postData.push(newData);
+          console.log(postData);
           setData(postData);
           resolve();
           setErrorMessages([]);
@@ -365,9 +408,10 @@ function TableComponent() {
         alert("Please fill in all the field!");
         resolve();
       }
-      const interval = setInterval(() => {
+      setInterval(() => {
         window.location.reload();
       }, 1500);
+      // getTableData();
     }
 
   //function to update row in database
@@ -398,10 +442,10 @@ function TableComponent() {
     }
 
     if(errorList.length < 1){
-      api.patch("/table/"+ oldData.id +".json", newData)
+      api.patch("/table/"+ oldData.uid +".json", newData)
         .then(res => {
           const dataUpdate = [...data];
-          const index = oldData.id;
+          const index = oldData.uid;
           dataUpdate[index] = newData;
           setData([...dataUpdate]);
           console.log(res);
@@ -414,24 +458,26 @@ function TableComponent() {
           setIserror(true);
           resolve();
       })
-      const interval = setInterval(() => {
+      
+      setInterval(() => {
         window.location.reload();
       }, 1500);
+
+      // getTableData();
     }else{
       setErrorMessages(errorList);
       setIserror(true);
       resolve();
     }
-    
   }
 
   //function to delete row in database
   const handleRowDelete = (oldData: any, resolve: any) => {
     for(const [index, value] of oldData.entries()) {
-      api.delete('/table/'+ value.id +'.json')
+      api.delete('/table/'+ value.uid +'.json')
       .then(res => {
         const dataDelete = [...data];
-        const index = oldData.id;
+        const index = oldData.uid;
         dataDelete.splice(index, 1);
         setData([...dataDelete]);
         resolve();
@@ -445,6 +491,8 @@ function TableComponent() {
     const interval = setInterval(() => {
       window.location.reload();
     }, 1500);
+
+    // getTableData();
   }
 
   return (
@@ -457,60 +505,53 @@ function TableComponent() {
         icons={TABLEICONS}
         options={{
           toolbar: true,
-          filtering: true,
-          selection: true
+          // selection: true, //checkbox of each row
+          actionsColumnIndex: -1
         }}
-        actions={[
-          {
-            icon: () => {
-              return(
-                <Button
-                  variant='outlined'
-                >指名</Button>
-              )
-            },
-            tooltip: '指名',
-            onClick: (event, rowData) => {
+        //action button
+        // actions={[
+        //   {
+        //     icon: () => {
+        //       return(
+        //         <Button
+        //           variant='outlined'
+        //         >指名</Button>
+        //       )
+        //     },
+        //     tooltip: '指名',
+        //     onClick: (event, rowData) => {
               
-            }     
-          },
-          {
-            icon: () => {
-              return(
-                <Button
-                  variant='outlined'
-                >退勤</Button>
-              )
-            },
-            tooltip: '退勤',
-            onClick: (event, rowData) => {
-              //退勤 function at here
-            }     
-          },
-          {
-            icon: () => {
-              return(
-                <Button
-                  variant='outlined'
-                >消除</Button>
-              )
-            },
-            tooltip: '削除',
-            onClick: (event, rowData) => {
-              new Promise((resolve, reject) => {
-                handleRowDelete(rowData, resolve);
-              })
-            }     
-          },
-        ]}
-        // cellEditable={{
-        //   onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
-        //     return new Promise((resolve, reject) => {
-
-        //       setTimeout(resolve, 1000);
-        //     });
-        //   }
-        // }}
+        //     }     
+        //   },
+        //   {
+        //     icon: () => {
+        //       return(
+        //         <Button
+        //           variant='outlined'
+        //         >退勤</Button>
+        //       )
+        //     },
+        //     tooltip: '退勤',
+        //     onClick: (event, rowData) => {
+        //       //退勤 function at here
+        //     }     
+        //   },
+        //   {
+        //     icon: () => {
+        //       return(
+        //         <Button
+        //           variant='outlined'
+        //         >消除</Button>
+        //       )
+        //     },
+        //     tooltip: '削除',
+        //     onClick: (event, rowData) => {
+        //       new Promise((resolve) => {
+        //         handleRowDelete(rowData, resolve);
+        //       })
+        //     }     
+        //   },
+        // ]}
         editable={{
           onRowAdd: newData =>
             new Promise((resolve) => {
