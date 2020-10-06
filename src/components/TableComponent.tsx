@@ -60,8 +60,8 @@ function TableComponent() {
 
   //column props
   const [columns, setColumns] = useState<any>([
-    { title: 'ID', field: 'uid', editable: 'never', hidden: true}, //ID from firebase
-    { field: 'id', editable: 'never'}, // Fake id
+    { title: 'UID', field: 'uid', editable: 'never', hidden: true}, //ID from firebase
+    { title: 'ID', field: 'id', editable: 'never'}, // Fake id
     { title: '指名', field: 'name',
       cellStyle: {
         width: 30,
